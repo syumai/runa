@@ -25,16 +25,14 @@ func parseInt(s string) (int64, error) {
 }
 
 func main() {
-	if len(os.Args) < 3 {
-		printUsage()
-		return
-	}
+	if os.Args[1] == "-c" {
+		if len(os.Args) < 3 {
+			printUsage()
+			return
+		}
 
-	fromArg, toArg := os.Args[1], os.Args[2]
-
-	if fromArg == "-c" {
 		sep := ""
-		for _, r := range []rune(toArg) {
+		for _, r := range []rune(os.Args[2]) {
 			fmt.Print(sep, r)
 			sep = " "
 		}
@@ -42,12 +40,26 @@ func main() {
 		return
 	}
 
+	if len(os.Args) < 2 {
+		printUsage()
+		return
+	}
+
+	fromArg := os.Args[1]
+
 	from, err := parseInt(fromArg)
 	if err != nil {
 		log.Fatalf("Invalid from: %v", fromArg)
 		printUsage()
 		return
 	}
+
+	if len(os.Args) == 2 {
+		fmt.Printf("%#c\n", from)
+		return
+	}
+
+	toArg := os.Args[2]
 
 	to, err := parseInt(toArg)
 	if err != nil {
