@@ -34,7 +34,7 @@ func main() {
 	fromArg, toArg := os.Args[1], os.Args[2]
 
 	if fromArg == "-c" {
-		fmt.Println(toArg[0])
+		fmt.Println([]rune(toArg)[0])
 		return
 	}
 
