@@ -94,36 +94,15 @@ func main() {
 		return
 	}
 
-	if len(os.Args) < 2 {
-		printUsage()
-		return
-	}
+	sep := ""
+	for _, s := range os.Args[1:] {
+		i, err := parseInt(s)
+		if err != nil {
+			log.Fatal("invalid number: %#v", i)
+		}
 
-	fromArg := os.Args[1]
-
-	from, err := parseInt(fromArg)
-	if err != nil {
-		log.Fatalf("Invalid from: %v", fromArg)
-		printUsage()
-		return
-	}
-
-	if len(os.Args) == 2 {
-		fmt.Printf("%#c\n", from)
-		return
-	}
-
-	toArg := os.Args[2]
-
-	to, err := parseInt(toArg)
-	if err != nil {
-		log.Fatalf("Invalid to: %v", toArg)
-		printUsage()
-		return
-	}
-
-	for i := from; i <= to; i++ {
-		fmt.Printf("%#c", i)
+		fmt.Printf("%s%#c", sep, i)
+		sep = " "
 	}
 	fmt.Println("")
 }
