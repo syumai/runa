@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 func printUsage() {
@@ -14,9 +15,6 @@ func printUsage() {
 # show characters
 
 $ runa 33 90
-> ! Z
-
-$ echo '33 90' | runa
 > ! Z
 
 
@@ -31,16 +29,10 @@ $ runa -r 33 90
 $ runa -c ! Z
 > 33 90
 
-$ echo '! Z' | runa -c
-> 33 90
-
 
 # show code points from input
 
 $ runa -i abcde
-> 97 98 99 100 101
-
-$ echo 'abcde' | runa -i
 > 97 98 99 100 101`)
 }
 
@@ -72,9 +64,26 @@ func main() {
 			log.Fatalf("invalid to: %v", toArg)
 		}
 
-		err = execRange(from, to)
+		rd := NewRangeStream(from, to)
+		err = outputRunes(rd)
 		if err != nil {
-			log.Fatalf("unexpected err in executing range: %v", err)
+			log.Fatalf("unexpected err in -r command: %v", err)
+		}
+		return
+	}
+
+	if os.Args[1] == "-s" {
+		if len(os.Args) < 3 {
+			printUsage()
+			return
+		}
+
+		for _, arg := range os.Args[2:] {
+			rd := strings.NewReader(arg)
+			err := outputCodePoints(rd)
+			if err != nil {
+				log.Fatalf("unexpected err in -s command: %v", err)
+			}
 		}
 		return
 	}
@@ -86,8 +95,12 @@ func main() {
 		}
 
 		sep := ""
-		for _, r := range []rune(os.Args[2]) {
-			fmt.Print(sep, r)
+		for _, arg := range os.Args[2:] {
+			if utf8.RuneCountInString(arg) > 1 {
+				log.Fatalf("-c command doesn't allow words")
+			}
+
+			fmt.Printf("%s%d", sep, []rune(arg)[0])
 			sep = " "
 		}
 		fmt.Println("")

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"unicode/utf8"
 )
@@ -27,20 +26,4 @@ func (rs *RangeStream) ReadRune() (r rune, size int, err error) {
 	size = utf8.RuneLen(r)
 	rs.curr++
 	return
-}
-
-func execRange(from, to int64) error {
-	rs := NewRangeStream(from, to)
-	for {
-		r, _, err := rs.ReadRune()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return err
-		}
-		fmt.Printf("%#c", r)
-	}
-	fmt.Println("")
-	return nil
 }
