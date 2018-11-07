@@ -9,7 +9,13 @@ import (
 )
 
 func printUsage() {
-	fmt.Println("Please input `from` `to` as arguments. Usage: runa 33 126")
+	fmt.Println(`Usage:
+$ runa 33 90
+> !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+$ runa -c a
+> 97
+`)
 }
 
 func parseInt(s string) (int64, error) {
@@ -26,6 +32,11 @@ func main() {
 	}
 
 	fromArg, toArg := os.Args[1], os.Args[2]
+
+	if fromArg == "-c" {
+		fmt.Println(toArg[0])
+		return
+	}
 
 	from, err := parseInt(fromArg)
 	if err != nil {
