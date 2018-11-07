@@ -14,8 +14,7 @@ $ runa 33 90
 > !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ
 
 $ runa -c a
-> 97
-`)
+> 97`)
 }
 
 func parseInt(s string) (int64, error) {
@@ -34,7 +33,12 @@ func main() {
 	fromArg, toArg := os.Args[1], os.Args[2]
 
 	if fromArg == "-c" {
-		fmt.Println([]rune(toArg)[0])
+		sep := ""
+		for _, r := range []rune(toArg) {
+			fmt.Print(sep, r)
+			sep = " "
+		}
+		fmt.Println("")
 		return
 	}
 

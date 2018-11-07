@@ -14,9 +14,14 @@ go get -u github.com/syumai/runa
   - Basic number (like: 33)
   - Hex number (like: 0xaa)
 
-```console
-runa 33 126    # show characters in 33 to 126
-runa 0x41 0x5a # show characters in 0x41 to 0x5a
-runa -c a      # show code point of `a`
+```sh
+$ runa 33 90     # show characters in 33 to 90
+# !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+$ runa 0x21 0x5a # show characters in 0x21 to 0x5a
+# !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+$ runa -c abcde  # show code point of `abcde`
+# 97 98 99 100 101 102 103
 ```
 
