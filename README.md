@@ -5,7 +5,7 @@
 ## Installation
 
 ```console
-go get -u github.com/syumai/runa
+go install github.com/syumai/runa@latest
 ```
 
 ## Usage
