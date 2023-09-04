@@ -6,15 +6,34 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 func printUsage() {
 	fmt.Println(`Usage:
+
+# show characters
+
 $ runa 33 90
+> ! Z
+
+
+# show characters in a range
+
+$ runa -r 33 90
 > !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ
 
-$ runa -c a
-> 97`)
+
+# show code points of characters
+
+$ runa -c ! Z
+> 33 90
+
+
+# show code points from input
+
+$ runa -i abcde
+> 97 98 99 100 101`)
 }
 
 func parseInt(s string) (int64, error) {
@@ -25,6 +44,50 @@ func parseInt(s string) (int64, error) {
 }
 
 func main() {
+	if os.Args[1] == "-r" {
+		if len(os.Args) != 4 {
+			printUsage()
+			os.Exit(1)
+		}
+
+		fromArg, toArg := os.Args[2], os.Args[3]
+
+		from, err := parseInt(fromArg)
+		if err != nil {
+			printUsage()
+			log.Fatalf("invalid from: %v", fromArg)
+		}
+
+		to, err := parseInt(toArg)
+		if err != nil {
+			printUsage()
+			log.Fatalf("invalid to: %v", toArg)
+		}
+
+		rd := NewRangeStream(from, to)
+		err = outputRunes(rd)
+		if err != nil {
+			log.Fatalf("unexpected err in -r command: %v", err)
+		}
+		return
+	}
+
+	if os.Args[1] == "-s" {
+		if len(os.Args) < 3 {
+			printUsage()
+			return
+		}
+
+		for _, arg := range os.Args[2:] {
+			rd := strings.NewReader(arg)
+			err := outputCodePoints(rd)
+			if err != nil {
+				log.Fatalf("unexpected err in -s command: %v", err)
+			}
+		}
+		return
+	}
+
 	if os.Args[1] == "-c" {
 		if len(os.Args) < 3 {
 			printUsage()
@@ -32,44 +95,27 @@ func main() {
 		}
 
 		sep := ""
-		for _, r := range []rune(os.Args[2]) {
-			fmt.Print(sep, r)
+		for _, arg := range os.Args[2:] {
+			if utf8.RuneCountInString(arg) > 1 {
+				log.Fatalf("-c command doesn't allow words")
+			}
+
+			fmt.Printf("%s%d", sep, []rune(arg)[0])
 			sep = " "
 		}
 		fmt.Println("")
 		return
 	}
 
-	if len(os.Args) < 2 {
-		printUsage()
-		return
-	}
+	sep := ""
+	for _, s := range os.Args[1:] {
+		i, err := parseInt(s)
+		if err != nil {
+			log.Fatal("invalid number: %#v", i)
+		}
 
-	fromArg := os.Args[1]
-
-	from, err := parseInt(fromArg)
-	if err != nil {
-		log.Fatalf("Invalid from: %v", fromArg)
-		printUsage()
-		return
-	}
-
-	if len(os.Args) == 2 {
-		fmt.Printf("%#c\n", from)
-		return
-	}
-
-	toArg := os.Args[2]
-
-	to, err := parseInt(toArg)
-	if err != nil {
-		log.Fatalf("Invalid to: %v", toArg)
-		printUsage()
-		return
-	}
-
-	for i := from; i <= to; i++ {
-		fmt.Printf("%#c", i)
+		fmt.Printf("%s%#c", sep, i)
+		sep = " "
 	}
 	fmt.Println("")
 }
